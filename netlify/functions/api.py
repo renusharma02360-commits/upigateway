@@ -1,5 +1,9 @@
-from app import app
-import serverless_wsgi
-
 def handler(event, context):
-    return serverless_wsgi.handle_request(app, event, context)
+    return {
+        "statusCode": 200,
+        "headers": {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*"
+        },
+        "body": '{"status":"ok","message":"UPI Gateway API Working!","upi_id":"renu@upi"}'
+    }

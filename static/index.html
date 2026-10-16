@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>UPI Gateway</title></head>
-<body style="font-family:sans-serif;text-align:center;padding:40px">
-<h2>UPI Gateway Live ✅</h2>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>UPI Gateway</title>
+<style>body{font-family:sans-serif;text-align:center;padding-top:50px}</style>
+</head>
+<body>
+<h1>UPI Gateway Live ✅</h1>
 <p>API: <a href="/.netlify/functions/api">/.netlify/functions/api</a></p>
-<p id="status">Checking...</p>
+<p id="api-result">Loading...</p>
 <script>
-fetch('/.netlify/functions/api').then(r=>r.text()).then(t=>{document.getElementById('status').innerText=t.slice(0,200)}).catch(e=>{document.getElementById('status').innerText='API Error: '+e})
+fetch('/.netlify/functions/api')
+.then(r=>r.text())
+.then(t=>document.getElementById('api-result').innerText=t)
+.catch(e=>document.getElementById('api-result').innerText='Error: '+e)
 </script>
 </body>
 </html>
