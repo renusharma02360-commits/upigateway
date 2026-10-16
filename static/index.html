@@ -1,20 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width">
-<title>UPI Gateway</title>
-<style>body{font-family:sans-serif;text-align:center;padding-top:50px}</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UPI Gateway - Renu</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui;background:#f6f7fb;color:#111}
+.header{background:#5b46f6;color:#fff;padding:18px 20px;text-align:center;font-weight:700;font-size:20px}
+.container{max-width:480px;margin:20px auto;padding:0 16px}
+.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.08);margin-bottom:16px}
+label{font-size:13px;font-weight:600;color:#555;display:block;margin:12px 0 6px}
+input{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font-size:15px;outline:none}
+input:focus{border-color:#5b46f6}
+.btn{width:100%;padding:14px;background:#5b46f6;color:#fff;border:0;border-radius:12px;font-weight:700;font-size:16px;margin-top:16px;cursor:pointer}
+.btn:active{transform:scale(.98)}
+.qr-box{text-align:center;padding:10px;display:none}
+.qr-box img{width:220px;height:220px;border-radius:12px;margin:10px auto;background:#fff;padding:8px}
+.status{margin-top:12px;padding:10px;border-radius:8px;background:#eef2ff;font-size:14px;word-break:break-all;text-align:center}
+.small{font-size:12px;color:#777;text-align:center;margin-top:10px}
+a{color:#5b46f6}
+</style>
 </head>
 <body>
-<h1>UPI Gateway Live ✅</h1>
-<p>API: <a href="/.netlify/functions/api">/.netlify/functions/api</a></p>
-<p id="api-result">Loading...</p>
+<div class="header">UPI Gateway Live ✅</div>
+<div class="container">
+  <div class="card">
+    <label>UPI ID (payment lega)</label>
+    <input id="upi" value="renu@upi" placeholder="yourname@okhdfc">
+    <label>Your Name</label>
+    <input id="name" value="Renu Sharma" placeholder="Merchant Name">
+    <label>Amount (INR)</label>
+    <input id="amount" type="number" value="10" placeholder="100">
+    <label>Note / Order ID</label>
+    <input id="note" value="Order123" placeholder="Order ID">
+    <button class="btn" onclick="generateQR()">Generate UPI QR</button>
+    <div class="small">API: <a href="/.netlify/functions/api">/.netlify/functions/api</a> - <span id="apiStatus">Checking...</span></div>
+  </div>
+
+  <div class="card qr-box" id="qrCard">
+    <h3 style="margin:0">Scan & Pay</h3>
+    <img id="qrImg" src="" alt="QR">
+    <div style="font-size:18px;font-weight:700" id="amtShow">₹10</div>
+    <div id="upiShow" style="font-size:13px;color:#666"></div>
+    <button class="btn" style="background:#111" onclick="verifyPay()">Verify Payment</button>
+    <div class="status" id="verifyStatus">Click Verify after payment</div>
+  </div>
+</div>
 <script>
-fetch('/.netlify/functions/api')
-.then(r=>r.text())
-.then(t=>document.getElementById('api-result').innerText=t)
-.catch(e=>document.getElementById('api-result').innerText='Error: '+e)
+// check API
+fetch('/.netlify/functions/api').then(r=>r.text()).then(t=>{
+  try{let j=JSON.parse(t); document.getElementById('apiStatus').innerText=j.message}catch(e){document.getElementById('apiStatus').innerText=t.slice(0,50)}
+});
+
+function generateQR(){
+  const upi = document.getElementById('upi').value.trim();
+  const name = document.getElementById('name').value.trim()||'Merchant';
+  const amount = document.getElementById('amount').value.trim();
+  const note = document.getElementById('note').value.trim()||'Payment';
+  if(!upi){alert('UPI ID daalo');return}
+  const upiLink = `upi://pay?pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent(name)}&am=${encodeURIComponent(amount)}&cu=INR&tn=${encodeURIComponent(note)}`;
+  const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
+  document.getElementById('qrImg').src = qrApi;
+  document.getElementById('amtShow').innerText = `₹${amount}`;
+  document.getElementById('upiShow').innerText = upi;
+  document.getElementById('qrCard').style.display='block';
+  document.getElementById('qrCard').scrollIntoView({behavior:'smooth'});
+}
+function verifyPay(){
+  const s = document.getElementById('verifyStatus');
+  s.innerText='Checking payment...';
+  fetch('/.netlify/functions/api').then(r=>r.json()).then(j=>{
+    s.innerText = 'API: '+j.message+' | Time: '+j.time+'\n\n(Note: Real Gmail verification next step me jodenge)';
+  }).catch(e=>{ s.innerText='Error: '+e });
+}
 </script>
 </body>
 </html>
