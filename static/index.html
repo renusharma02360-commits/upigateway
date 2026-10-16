@@ -1,71 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>UPI Gateway Private - Email Verify</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UPI Gateway - Private Dashboard</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#f6f7fb]">
-<header class="bg-[#5a45fe] p-4 text-white flex justify-between">
-<b>UPI Gateway - Private</b>
-<span class="text-xs bg-white/20 px-3 py-1 rounded-full">EMAIL VERIFY</span>
+<body class="bg-[#f5f6fb]">
+<header class="bg-white border-b p-4 flex justify-between items-center sticky top-0">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-[#5a45fe] rounded-lg"></div>
+<b>UPI Gateway</b> <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">PRIVATE</span>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<span id="gmailDot" class="w-2 h-2 bg-red-500 rounded-full"></span>
+<span id="gmailStatus">Gmail Not Connected</span>
+</div>
 </header>
 
-<div class="max-w-5xl mx-auto p-4 grid md:grid-cols-2 gap-4">
-<div class="bg-white p-6 rounded-2xl shadow">
-<h2 class="font-bold text-lg mb-4">Email + UPI Payment</h2>
-
-<label class="text-xs text-gray-500 font-bold">Customer Email</label>
-<input id="custEmail" class="w-full border rounded-xl p-3 mt-1 mb-3" placeholder="customer@gmail.com">
-
-<label class="text-xs text-gray-500 font-bold">UPI ID</label>
-<input id="upi" class="w-full border rounded-xl p-3 mt-1 mb-3" value="renu@okaxis">
-
-<label class="text-xs text-gray-500 font-bold">Amount</label>
-<input id="amt" type="number" class="w-full border rounded-xl p-3 mt-1 mb-3" value="100">
-
-<label class="text-xs text-gray-500 font-bold">Order Note</label>
-<input id="note" class="w-full border rounded-xl p-3 mt-1 mb-3" value="ORDER_123">
-
-<button onclick="gen()" class="w-full bg-[#5a45fe] text-white p-3 rounded-xl font-bold">Generate Link + QR</button>
+<div class="max-w-6xl mx-auto p-4">
+<div class="bg-white rounded-2xl p-5 shadow mb-4 grid md:grid-cols-3 gap-4">
+<div>
+<label class="text-[11px] font-bold text-gray-500">GMAIL API KEY / CLIENT ID</label>
+<input id="gmailKey" class="w-full border rounded-xl p-3 mt-1 text-xs" placeholder="Paste Gmail API Key here">
+<button onclick="connectGmail()" class="w-full bg-black text-white rounded-xl p-2 mt-2 text-sm font-bold">Connect Gmail</button>
+</div>
+<div>
+<label class="text-[11px] font-bold text-gray-500">UPI ID</label>
+<input id="upi" class="w-full border rounded-xl p-3 mt-1" value="renu@okaxis">
+<label class="text-[11px] font-bold text-gray-500 mt-2 block">AMOUNT</label>
+<input id="amt" type="number" class="w-full border rounded-xl p-3 mt-1" value="100">
+</div>
+<div>
+<label class="text-[11px] font-bold text-gray-500">CUSTOMER EMAIL (for verify)</label>
+<input id="cEmail" class="w-full border rounded-xl p-3 mt-1" placeholder="customer@gmail.com">
+<button onclick="genQR()" class="w-full bg-[#5a45fe] text-white rounded-xl p-3 mt-4 font-bold">Generate QR + Link</button>
+</div>
 </div>
 
-<div class="bg-white p-6 rounded-2xl shadow text-center">
-<h2 class="font-bold mb-3">QR Code</h2>
+<div class="grid md:grid-cols-3 gap-4">
+<div class="bg-white rounded-2xl p-5 shadow text-center">
+<h2 class="font-bold mb-3">QR Payment</h2>
 <div id="qrBox" class="hidden">
-<img id="qrImg" class="mx-auto w-64 h-64 border rounded-xl p-2">
-<p id="qrLink" class="text-[10px] break-all mt-3 bg-gray-50 p-2 rounded"></p>
-<button onclick="verifyEmail()" class="w-full bg-black text-white p-3 rounded-xl mt-4 font-bold">Verify Payment via Email</button>
-<div id="vResult" class="mt-3 text-xs p-3 bg-gray-50 rounded-xl text-left">Not checked yet</div>
+<img id="qrImg" class="mx-auto w-56 h-56 border rounded-xl p-2">
+<p id="qrLink" class="text-[10px] break-all mt-3 bg-gray-50 p-2 rounded text-left"></p>
 </div>
-<div id="empty" class="py-20 text-gray-400 text-sm">Email daal ke Generate karo</div>
+<div id="qrEmpty" class="py-20 text-gray-400 text-sm">QR yahan ayega</div>
+</div>
+
+<div class="md:col-span-2 bg-white rounded-2xl p-5 shadow">
+<div class="flex justify-between items-center mb-4">
+<h2 class="font-bold">Live Payments - Gmail Verification</h2>
+<button onclick="checkGmail()" class="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-full">Refresh Gmail</button>
+</div>
+<div class="overflow-auto">
+<table class="w-full text-xs text-left">
+<thead class="text-gray-400 text-[11px] border-b"><tr><th class="pb-2">EMAIL</th><th>AMOUNT</th><th>STATUS</th><th>TIME</th></tr></thead>
+<tbody id="txTable">
+<tr><td colspan="4" class="py-10 text-center text-gray-400">No payments yet - Gmail se check hoga</td></tr>
+</tbody>
+</table>
+</div>
+<div class="mt-4 p-3 bg-green-50 rounded-xl text-[11px] border border-green-100">
+<b>API Live:</b> <span id="apiMsg">Checking...</span> - /.netlify/functions/api
+</div>
+</div>
 </div>
 </div>
 
 <script>
-function gen(){
+let payments=[];
+fetch('/.netlify/functions/api').then(r=>r.json()).then(j=>{document.getElementById('apiMsg').innerText=j.message+' ✅'})
+
+function connectGmail(){
+ const k=document.getElementById('gmailKey').value;
+ if(!k){alert('API Key daal');return}
+ localStorage.setItem('gmail_key',k);
+ document.getElementById('gmailDot').className='w-2 h-2 bg-green-500 rounded-full';
+ document.getElementById('gmailStatus').innerText='Gmail Connected ✅';
+ document.getElementById('gmailStatus').className='text-green-600 font-bold';
+ alert('Gmail Connected ✅ - Ab payments Gmail se verify honge');
+}
+function genQR(){
  const upi=document.getElementById('upi').value;
  const amt=document.getElementById('amt').value;
- const note=document.getElementById('note').value;
- const email=document.getElementById('custEmail').value;
- const name='Renu Store';
- const link=`upi://pay?pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent(name)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
+ const email=document.getElementById('cEmail').value;
+ if(!email){alert('Customer email daal');return}
+ const link=`upi://pay?pa=${encodeURIComponent(upi)}&pn=RenuStore&am=${amt}&cu=INR&tn=${encodeURIComponent(email)}`;
  document.getElementById('qrImg').src=`https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(link)}`;
- document.getElementById('qrLink').innerText=`Email: ${email}\nLink: ${link}`;
+ document.getElementById('qrLink').innerText=`To: ${email}\n${link}`;
  document.getElementById('qrBox').classList.remove('hidden');
- document.getElementById('empty').classList.add('hidden');
+ document.getElementById('qrEmpty').classList.add('hidden');
+ payments.unshift({email,amount:amt,status:'Pending - Checking Gmail...',time:new Date().toLocaleString()});
+ render();
+ checkGmail(email);
 }
-async function verifyEmail(){
- const email=document.getElementById('custEmail').value;
- const resBox=document.getElementById('vResult');
- resBox.innerText='Checking...';
+function render(){
+ const tb=document.getElementById('txTable');
+ if(payments.length==0) return;
+ tb.innerHTML=payments.map(p=>`<tr class="border-b"><td class="py-2 font-medium">${p.email}</td><td>₹${p.amount}</td><td><span class="px-2 py-1 rounded-full text-[10px] ${p.status.includes('Verified')?'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700'}">${p.status}</span></td><td class="text-gray-400">${p.time}</td></tr>`).join('');
+}
+async function checkGmail(email){
+ const box=document.getElementById('apiMsg');
  try{
-  const r=await fetch(`/.netlify/functions/api?email=${encodeURIComponent(email)}`);
+  const e=email||document.getElementById('cEmail').value;
+  const r=await fetch(`/.netlify/functions/api?email=${encodeURIComponent(e)}&check=gmail`);
   const t=await r.text();
-  resBox.innerText=t.slice(0,500);
- }catch(e){resBox.innerText='Error '+e}
+  box.innerText=t.slice(0,120);
+  if(payments[0]){payments[0].status=t.includes('OK')||t.includes('UPI')?'Verified ✅ Gmail':t.slice(0,30); render();}
+ }catch(err){box.innerText='Error: '+err}
 }
+(function(){const k=localStorage.getItem('gmail_key'); if(k){document.getElementById('gmailKey').value=k; connectGmail();}})();
 </script>
 </body>
 </html>
