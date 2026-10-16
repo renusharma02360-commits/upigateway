@@ -2,76 +2,69 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UPI Gateway - Renu</title>
-<style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui;background:#f6f7fb;color:#111}
-.header{background:#5b46f6;color:#fff;padding:18px 20px;text-align:center;font-weight:700;font-size:20px}
-.container{max-width:480px;margin:20px auto;padding:0 16px}
-.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.08);margin-bottom:16px}
-label{font-size:13px;font-weight:600;color:#555;display:block;margin:12px 0 6px}
-input{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font-size:15px;outline:none}
-input:focus{border-color:#5b46f6}
-.btn{width:100%;padding:14px;background:#5b46f6;color:#fff;border:0;border-radius:12px;font-weight:700;font-size:16px;margin-top:16px;cursor:pointer}
-.btn:active{transform:scale(.98)}
-.qr-box{text-align:center;padding:10px;display:none}
-.qr-box img{width:220px;height:220px;border-radius:12px;margin:10px auto;background:#fff;padding:8px}
-.status{margin-top:12px;padding:10px;border-radius:8px;background:#eef2ff;font-size:14px;word-break:break-all;text-align:center}
-.small{font-size:12px;color:#777;text-align:center;margin-top:10px}
-a{color:#5b46f6}
-</style>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UPI Gateway Private - Email Verify</title>
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<div class="header">UPI Gateway Live ✅</div>
-<div class="container">
-  <div class="card">
-    <label>UPI ID (payment lega)</label>
-    <input id="upi" value="renu@upi" placeholder="yourname@okhdfc">
-    <label>Your Name</label>
-    <input id="name" value="Renu Sharma" placeholder="Merchant Name">
-    <label>Amount (INR)</label>
-    <input id="amount" type="number" value="10" placeholder="100">
-    <label>Note / Order ID</label>
-    <input id="note" value="Order123" placeholder="Order ID">
-    <button class="btn" onclick="generateQR()">Generate UPI QR</button>
-    <div class="small">API: <a href="/.netlify/functions/api">/.netlify/functions/api</a> - <span id="apiStatus">Checking...</span></div>
-  </div>
+<body class="bg-[#f6f7fb]">
+<header class="bg-[#5a45fe] p-4 text-white flex justify-between">
+<b>UPI Gateway - Private</b>
+<span class="text-xs bg-white/20 px-3 py-1 rounded-full">EMAIL VERIFY</span>
+</header>
 
-  <div class="card qr-box" id="qrCard">
-    <h3 style="margin:0">Scan & Pay</h3>
-    <img id="qrImg" src="" alt="QR">
-    <div style="font-size:18px;font-weight:700" id="amtShow">₹10</div>
-    <div id="upiShow" style="font-size:13px;color:#666"></div>
-    <button class="btn" style="background:#111" onclick="verifyPay()">Verify Payment</button>
-    <div class="status" id="verifyStatus">Click Verify after payment</div>
-  </div>
+<div class="max-w-5xl mx-auto p-4 grid md:grid-cols-2 gap-4">
+<div class="bg-white p-6 rounded-2xl shadow">
+<h2 class="font-bold text-lg mb-4">Email + UPI Payment</h2>
+
+<label class="text-xs text-gray-500 font-bold">Customer Email</label>
+<input id="custEmail" class="w-full border rounded-xl p-3 mt-1 mb-3" placeholder="customer@gmail.com">
+
+<label class="text-xs text-gray-500 font-bold">UPI ID</label>
+<input id="upi" class="w-full border rounded-xl p-3 mt-1 mb-3" value="renu@okaxis">
+
+<label class="text-xs text-gray-500 font-bold">Amount</label>
+<input id="amt" type="number" class="w-full border rounded-xl p-3 mt-1 mb-3" value="100">
+
+<label class="text-xs text-gray-500 font-bold">Order Note</label>
+<input id="note" class="w-full border rounded-xl p-3 mt-1 mb-3" value="ORDER_123">
+
+<button onclick="gen()" class="w-full bg-[#5a45fe] text-white p-3 rounded-xl font-bold">Generate Link + QR</button>
 </div>
-<script>
-// check API
-fetch('/.netlify/functions/api').then(r=>r.text()).then(t=>{
-  try{let j=JSON.parse(t); document.getElementById('apiStatus').innerText=j.message}catch(e){document.getElementById('apiStatus').innerText=t.slice(0,50)}
-});
 
-function generateQR(){
-  const upi = document.getElementById('upi').value.trim();
-  const name = document.getElementById('name').value.trim()||'Merchant';
-  const amount = document.getElementById('amount').value.trim();
-  const note = document.getElementById('note').value.trim()||'Payment';
-  if(!upi){alert('UPI ID daalo');return}
-  const upiLink = `upi://pay?pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent(name)}&am=${encodeURIComponent(amount)}&cu=INR&tn=${encodeURIComponent(note)}`;
-  const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiLink)}`;
-  document.getElementById('qrImg').src = qrApi;
-  document.getElementById('amtShow').innerText = `₹${amount}`;
-  document.getElementById('upiShow').innerText = upi;
-  document.getElementById('qrCard').style.display='block';
-  document.getElementById('qrCard').scrollIntoView({behavior:'smooth'});
+<div class="bg-white p-6 rounded-2xl shadow text-center">
+<h2 class="font-bold mb-3">QR Code</h2>
+<div id="qrBox" class="hidden">
+<img id="qrImg" class="mx-auto w-64 h-64 border rounded-xl p-2">
+<p id="qrLink" class="text-[10px] break-all mt-3 bg-gray-50 p-2 rounded"></p>
+<button onclick="verifyEmail()" class="w-full bg-black text-white p-3 rounded-xl mt-4 font-bold">Verify Payment via Email</button>
+<div id="vResult" class="mt-3 text-xs p-3 bg-gray-50 rounded-xl text-left">Not checked yet</div>
+</div>
+<div id="empty" class="py-20 text-gray-400 text-sm">Email daal ke Generate karo</div>
+</div>
+</div>
+
+<script>
+function gen(){
+ const upi=document.getElementById('upi').value;
+ const amt=document.getElementById('amt').value;
+ const note=document.getElementById('note').value;
+ const email=document.getElementById('custEmail').value;
+ const name='Renu Store';
+ const link=`upi://pay?pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent(name)}&am=${amt}&cu=INR&tn=${encodeURIComponent(note)}`;
+ document.getElementById('qrImg').src=`https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(link)}`;
+ document.getElementById('qrLink').innerText=`Email: ${email}\nLink: ${link}`;
+ document.getElementById('qrBox').classList.remove('hidden');
+ document.getElementById('empty').classList.add('hidden');
 }
-function verifyPay(){
-  const s = document.getElementById('verifyStatus');
-  s.innerText='Checking payment...';
-  fetch('/.netlify/functions/api').then(r=>r.json()).then(j=>{
-    s.innerText = 'API: '+j.message+' | Time: '+j.time+'\n\n(Note: Real Gmail verification next step me jodenge)';
-  }).catch(e=>{ s.innerText='Error: '+e });
+async function verifyEmail(){
+ const email=document.getElementById('custEmail').value;
+ const resBox=document.getElementById('vResult');
+ resBox.innerText='Checking...';
+ try{
+  const r=await fetch(`/.netlify/functions/api?email=${encodeURIComponent(email)}`);
+  const t=await r.text();
+  resBox.innerText=t.slice(0,500);
+ }catch(e){resBox.innerText='Error '+e}
 }
 </script>
 </body>
