@@ -1,0 +1,12 @@
+.env
+*.db
+*.db-shm
+*.db-wal
+client_secret.json
+token.json
+credentials.json
+gmail_*.txt
+__pycache__/
+static/qr_*.png
+static/wifi_qr.png
+static/fam_qr.jpg
